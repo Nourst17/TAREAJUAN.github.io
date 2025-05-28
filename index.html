@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Página web de Albert Rodríguez | Desarrollador Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fuente elegante de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;400&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: hidden; /* Oculta el desbordamiento para evitar scrolls indeseados durante el splash */
+        }
+        body {
+            background-color: #000000; /* Fondo negro */
+            font-family: 'Poppins', Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .main-content {
+            display: none; /* Ocultar el contenido principal inicialmente */
+            flex-direction: column;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            position: relative;
+        }
+        .main-title {
+            font-family: 'Poppins', Arial, Helvetica, sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+            margin-bottom: 35px;
+            margin-top: 0;
+            text-align: center;
+        }
+        .profile-picture-area {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 35px 7px rgba(0,0,0,0.3);
+            padding: 30px 18px 24px 18px;
+            max-width: 460px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow 0.2s;
+            min-width: 240px;
+        }
+        .profile-photo-full {
+            width: 260px;
+            height: 320px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            margin-top: 0;
+            box-shadow: 0 2px 15px 0 rgba(0,0,0,0.1);
+            border: 3px solid #f7fbff;
+            cursor: pointer;
+            transition: box-shadow 0.18s, border 0.17s;
+        }
+        .profile-photo-full:hover, .profile-photo-full:focus {
+            box-shadow: 0 9px 33px 0 #17496836;
+            border-color: #90d1ed;
+            outline: none;
+        }
+        .profile-caption {
+            font-size: 1rem;
+            margin: 0 0 6px 0;
+            letter-spacing: 0.03em;
+            color: #2a2a2e;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(255,255,255,0.6);
+        }
+        /* MODAL */
+        .audio-modal-bg {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(36,36,56,0.50);
+            z-index: 99;
+            align-items: center;
+            justify-content: center;
+        }
+        .audio-modal-bg.active { display: flex; }
+        .audio-modal-content {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 12px 31px 2px #1e294344;
+            min-width: 280px;
+            max-width: 92vw;
+            padding: 38px 25px 32px 25px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: modalIn 0.23s;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.94) translateY(38px); opacity: 0; }
+            to   { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .modal-close-btn {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            background: transparent;
+            border: none;
+            font-size: 2.05em;
+            color: #444f6c;
+            cursor: pointer;
+            transition: color 0.14s;
+        }
+        .modal-close-btn:hover, .modal-close-btn:focus {
+            color: #1f7ac9;
+            background: #e2f0ff55;
+            border-radius: 50%;
+        }
+        .modal-photo {
+            width: 188px;
+            height: 228px;
+            border-radius: 11px;
+            object-fit: cover;
+            border: 2.6px solid #ddeefc;
+            margin-bottom: 21px;
+        }
+        .audio-modal-label {
+            font-weight: 600;
+            font-size: 1.17rem;
+            color: #104c85;
+            margin: 0 0 27px 0;
+        }
+        .audio-modal-player {
+            width: 100%;
+            background: #f5fcff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 0 0 0;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px 0 rgba(35,51,90,0.07);
+        }
+        .modal-audio-controls {
+            display: flex;
+            gap: 22px;
+            align-items: center;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+        .audio-modal-btn {
+            border: none;
+            padding: 11px 25px 11px 20px;
+            font-size: 1.06rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            background: linear-gradient(96deg,#1263be 0%,#00c3c3 95%);
+            color: #fff;
+            box-shadow: 0 2px 9px 0 #62adeb45;
+            display: flex;
+            align-items: center;
+            gap: 0.6em;
+            transition: background 0.19s, box-shadow 0.21s, transform 0.12s;
+            outline: none;
+            margin: 0;
+            user-select: none;
+        }
+        .audio-modal-btn:focus, .audio-modal-btn:hover {
+            background: linear-gradient(96deg,#0d3f82 0%,#1ea2b8 90%);
+            box-shadow: 0 3px 20px 0 #1d83bf61;
+        }
+        .modal-audio-icon { width: 1.9em; height: 1.9em; }
+        .modal-audio-timeline { margin-bottom:5px; opacity: 0.85; }
+
+        /* Oculta controles nativos en mobile audio */
+        .audio-modal audio::-webkit-media-controls-panel {
+            background: transparent;
+            color: inherit;
+        }
+        
+        /* Estilos para los logos */
+        .logo-top-left {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            max-width: 120px;
+            z-index: 10;
+            display: none; /* Ocultar logos inicialmente */
+        }
+        
+        .logo-bottom-right {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            max-width: 120px;
+            z-index: 10;
+            display: none; /* Ocultar logos inicialmente */
+        }
+
+        /* Nuevos logos */
+        .logo-top-right {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 120px;
+            z-index: 10;
+            display: none; /* Ocultar logo inicialmente */
+        }
+        
+        .logo-bottom-left {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            max-width: 120px;
+            z-index: 10;
+            display: none; /* Ocultar logo inicialmente */
+        }
+        
+        /* --- */
+        @media (max-width: 700px) {
+            .main-title { font-size: 1.12rem; }
+            .profile-picture-area { max-width: 90%; border-radius: 10px; padding: 14px 3vw 15px 3vw;}
+            .profile-photo-full { width: 100%; max-width: 340px; height: auto; max-height: 56vw;}
+            .logo-top-left, .logo-bottom-right, .logo-top-right, .logo-bottom-left { max-width: 80px; }
+        }
+        
+        @media (max-width: 600px) {
+            .main-content {margin-top: 18px; width: 95vw;}
+            .modal-close-btn{ right: 9px; top: 9px;}
+            .audio-modal-content {padding: 18px 6px 22px 6px;}
+            .modal-photo{width: 64vw; min-width: 80px; height: auto; max-width: 99vw; max-height: 250px;}
+            .logo-top-left { top: 10px; left: 10px; max-width: 60px; }
+            .logo-bottom-right { bottom: 10px; right: 10px; max-width: 60px; }
+            .logo-top-right { top: 10px; right: 10px; max-width: 60px; }
+            .logo-bottom-left { bottom: 10px; left: 10px; max-width: 60px; }
+        }
+        
+        @media (max-width: 400px) {
+            .logo-top-left, .logo-bottom-right, .logo-top-right, .logo-bottom-left { max-width: 50px; }
+            .main-title { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<!-- Logos añadidos en las esquinas -->
+<img src="Iconos/LOGO2.jpg" alt="Logo 2" class="logo-top-left">
+<img src="Iconos/LOGO3.jpg" alt="Logo 3" class="logo-bottom-right">
+<img src="Iconos/LOGO1.jpg" alt="Logo 1" class="logo-top-right">
+<img src="Iconos/LOGO4.jpg" alt="Logo 4" class="logo-bottom-left">
+
+<!-- Splash que solo muestra el video -->
+<div id="splash">
+    <video src="Videos/AlbertRodriguez.mp4" autoplay muted playsinline poster="poster.jpg" id="splashVideo" style="width:100vw;height:100vh;object-fit:cover;"></video>
+</div>
+<div class="main-content">
+    <div class="main-title">
+        Página web <span style="font-size:1.09em;color:#00c8fc;text-shadow:none;display:inline-block;">Desarrollador Web</span><br>
+        <span style="font-size:1.12em;font-weight:800;letter-spacing:2px;color:#fff;">Albert Rodríguez</span>
+    </div>
+    <div class="profile-picture-area">
+        <img src="Galería de imagenes/Albert Foto.jpg" alt="Foto de perfil" class="profile-photo-full" id="imgFotoProfile" tabindex="0" draggable="false">
+        <div class="profile-caption">Haz clic en la foto para abrir el audio de presentación.</div>
+    </div>
+</div>
+<!-- MODAL DE AUDIO -->
+<div class="audio-modal-bg" id="audioModal">
+  <div class="audio-modal-content" role="dialog" aria-label="Audios de presentación">
+    <button class="modal-close-btn" id="closeModalBtn" aria-label="Cerrar modal">&times;</button>
+    <img src="Galería de imagenes/Albert Foto.jpg" alt="Foto completa de Albert Rodríguez" class="modal-photo" draggable="false">
+    <div class="audio-modal-label">Audio de presentación</div>
+    <div class="audio-modal-player">
+      <div class="modal-audio-controls">
+        <button class="audio-modal-btn" id="modalPlayBtn" type="button" aria-label="Reproducir audio">
+          <span class="modal-audio-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+          Reproducir
+        </button>
+        <button class="audio-modal-btn" id="modalPauseBtn" type="button" aria-label="Pausar audio">
+          <span class="modal-audio-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="5" width="4" height="14"/>
+              <rect x="14" y="5" width="4" height="14"/>
+            </svg>
+          </span>
+          Pausar
+        </button>
+      </div>
+      <audio id="audioAlbert" src="Audios/AudioAlbert.mp3" preload="auto" controls class="modal-audio-timeline"></audio>
+    </div>
+  </div>
+</div>
+<script>
+    // Splash out
+    window.addEventListener('DOMContentLoaded', function() {
+        var splash = document.getElementById('splash');
+        var mainContent = document.querySelector('.main-content');
+        var splashVideo = document.getElementById('splashVideo');
+        splashVideo.addEventListener('ended', function() {
+            splash.style.display = 'none';
+            mainContent.style.display = 'flex'; // Mostrar el contenido principal cuando el video termina
+            document.querySelectorAll('.logo-top-left, .logo-bottom-right, .logo-top-right, .logo-bottom-left').forEach(function(logo) {
+                logo.style.display = 'block'; // Mostrar todos los logos después de ocultar el splash
+            });
+            document.body.style.overflow = 'auto'; // Restaurar desplazamiento de la página
+            // Cambiar fondo al GIF
+            document.body.style.backgroundImage = "url('https://i.pinimg.com/originals/4d/74/08/4d740888825ff6e44028919c3f2ebfc0.gif')";
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundRepeat = "no-repeat";
+        });
+        // Modal logic
+        var modal = document.getElementById('audioModal');
+        var openByPic = document.getElementById('imgFotoProfile');
+        var closeBtn = document.getElementById('closeModalBtn');
+        var audio = document.getElementById('audioAlbert');
+        var btnPlay = document.getElementById('modalPlayBtn');
+        var btnPause = document.getElementById('modalPauseBtn');
+        // Abrir modal al hacer click en la imagen
+        openByPic.addEventListener('click', openModal);
+        openByPic.addEventListener('keydown', function(ev){
+            if(ev.key === "Enter" || ev.key === " "){ openModal(); ev.preventDefault(); }
+        });
+        function openModal() {
+            modal.classList.add('active');
+            // al abrir, pausa y vuelve a 0.
+            audio.pause(); audio.currentTime = 0;
+        }
+        // Cerrar modal
+        function closeModalFunc() {
+            modal.classList.remove('active');
+            audio.pause();
+            audio.currentTime = 0;
+        }
+        closeBtn.addEventListener('click', closeModalFunc);
+        // Cerrar al pulsar fondo
+        modal.addEventListener('click', function(ev) {
+            if(ev.target === modal) closeModalFunc();
+        });
+        // Cerrar ESC
+        window.addEventListener('keydown', function(ev){
+            if (modal.classList.contains('active') && (ev.key === "Escape" || ev.key === "Esc")) closeModalFunc();
+        });
+        // PLAY/PAUSE
+        btnPlay.addEventListener('click', function(){
+            audio.currentTime = 0; audio.play();
+        });
+        btnPause.addEventListener('click', function(){
+            audio.pause();
+        });
+    });
+</script>
+</body>
+</html>
